@@ -1,0 +1,25 @@
+workflows:
+  react-native-ios:
+    name: React Native iOS Build
+    max_build_duration: 60
+    environment:
+      vars:
+        XCODE_WORKSPACE: "MyApp.xcworkspace"
+        XCODE_SCHEME: "MyApp"
+      ios_signing:
+        distribution_type: development
+        bundle_identifier: com.yourname.myapp
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm install
+          cd ios
+          pod install
+          cd ..
+      - name: Build .ipa
+        script: |
+          xcodebuild -workspace ios/$XCODE_WORKSPACE -scheme $XCODE_SCHEME -sdk iphoneos -configuration Release archive -archivePath $HOME/build/MyApp.xcarchive
+          xcodebuild -exportArchive -archivePath $HOME/build/MyApp.xcarchive -exportOptionsPlist ios/ExportOptions.plist -exportPath $HOME/build/export
+
+    artifacts:
+      - build/export/*.ipa
